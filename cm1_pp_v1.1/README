@@ -1,0 +1,255 @@
+README FOR CM1_PP_V1.1
+
+contents:
+1.0 OVERVIEW
+2.0 DETAILS ON PROGRAMS
+3.0 INSTALLATION
+4.0 FULL LIST OF FILES INCLUDED IN THIS PACKAGE
+
+1.0 OVERVIEW
+
+This is version 1.1 of CM1 Post Processing software.  It comprises four
+different programs: circuit, dyn, traj, and mass_flux.  NOTE:  IF YOU COME
+ACROOS V1.0, DO NOT USE IT!  CHRIS NOWOTARSKI FOUND A MAJOR BUG RENDERING
+IT USELESS.
+
+Circuit sets up a circular circuit of parcels and calculates their
+trajectories backwards to a specified beginning time, computing the
+circulation around the circuit at each time step.  Also outputs
+various other values for parcels.
+
+Dyn decomposes the pressure field into (optionally) linear, nonlinear
+dynamic and buoyancy perturbation pressure, and computes the PGFs for
+each component of the pressure field.
+
+Traj computes trajectories of parcels, and outputs values of various
+variables at each time step.  Options include outputting dynamics
+(including PGFs) and vorticity dynamics.
+
+Mass_flux computes the mass flux for a given area and at a given level
+of a file.
+
+IMPORTANT NOTE:  This software is designed for CM1 output in the form
+of NetCDF files (output_format=2 in namelist.input) with each history
+dump in a separate file (output_filetype=2).
+
+Also, this code only works for:  Double-moment schemes with two water
+species [cloud water (qc) and rain water (qr)] and three ice species 
+[cloud ice (qi), snow (qs) and graupel (qg)], and ptype=27, the ZVD 
+scheme which includes a third ice species, hail (qhl).
+
+Also, this code DOES NOT WORK WITH TERRAIN.
+
+2.0 DETAILS ON PROGRAMS
+
+2.1 DYN
+
+Dyn decomposes the pressure field as specified by the user.  Options
+include buoyancy, linear dynamic, and nonlinear dynamic perturbation
+pressure fields.  Nonlinear dynamic pressure is found as the residual
+of the total perturbation pressure field minus the buoyancy and
+linear dynamic pressure fields, so both of those must be computed
+in order to compute the nonlinear dynamic field.
+
+The code is based on the anelastic pressure solver included with CM1.
+The buoyancy perturbation pressure is computed according to the code
+written by Richard James and Paul Markowski.  Ryan Hastings wrote the
+linear dynamic perturbation pressure decomposition.  Ryan also modified
+the method to use a Direct Cosine Transform, which solves for Neumann
+conditions at the lateral boundaries, rather than the full Fourier
+transform in the original software, which solves for periodic conditions
+at the lateral boundaries.  Note that this computes the
+nondimensionalized pressures (i.e., Exner functions).
+
+Dependencies:
+  * NetCDF
+  * FFTW, the Fastest Fourier Transform in the West, available from
+fftw.org.
+
+Dyn requires the input file DYN.INPUT, a sample of which is included
+in the inputs directory accompanying this release.  DYN.INPUT must be
+in the directory from which dyn is executed.
+
+For running dyn on multiple CM1 files, the script batch_dyn.pl is included
+in the scripts directory.
+
+I'm lazy, so I haven't included attributes in the output netCDF file,
+but the variables are:
+  dimensions:
+    ni, nj, nk : number of grid points in the x-, y-, and z-direction,
+      respectively
+    nip1, njp1, nkp1 : ni+1, nj+1, nk+1
+  real,dimension(z) thr0 : base state virtual potential temperature (in K)
+  real,dimension(x,y,z) thrpert : density potential temperature 
+    perturbation (in K)
+  real,dimension(x,y,z) pi_dl : linear dynamic nondimensionalized pressure
+  real,dimension(x,y,z) p_dl : pi_dl converted to Pa
+  real,dimension(x,y,z) pi_b : buoyancy nondimensionalized pressure
+  real,dimension(x,y,z) p_b : pi_b converted to Pa
+  real,dimension(x,y,z) pi_dn : nonlinear dynamic nondimensionalized
+    pressure
+  real,dimension(x,y,z) p_dn : pi_dn converted to Pa
+  real,dimension(x,y,z,c) pgfb : buoyancy PPGF.  the dimension c refers
+    to the component of the PGF vector.  Note that each PGF is on the
+    corresponding momentum grid.  E.g., pgfb(:,:,:,1) is on the u-
+    momentum grid.
+  real,dimension(x,y,z,c) pgfdl : linear dynamic PPGF
+  real,dimension(x,y,z,c) pgfdn : nonlinear dynamic PPGF
+
+2.2 TRAJ
+
+Given a begin time, a parcel initialization time, and and end time, traj
+computes the trajectories backward to the begin time and forward to the
+end time from the initialization time.  Winds and thermodynamics are
+kept constant below the lowest scalar grid level.
+
+Four input files may be needed, three of which are required.  One is
+TRAJECT.INPUT, a sample of which is included in the inputs directory 
+accompanying this release.  Another is a list of CM1 files, specified by 
+CM1LIST in TRAJECT.INPUT.  Each filename should be on a separate line, 
+and  enclosed by single quotes.  The first line must be the number of CM1
+files.  If OUTPUT_DYN is set to 1, then DYNLIST is also required.  This
+file consists of a list of dyn output files, which must have a one-to-one
+correspondence with the files in CM1.  Finally, the PLIST file is
+required.  The first line of that file should be the number of parcels,
+and each line after must be the x, y, z, coordinates of the parcel
+initialization positions, separated by spaces.
+
+For creating PLIST, the script PARCEL_LIST_MAKER.PL in the scripts
+directory is very helpful.  This script creates a 3-D grid of parcels
+within x, y, and z boundaries specified by the user.
+
+The timestep, DT, must equal the time difference between CM1 files.  The
+current version of this code does trilinear interpolation for each CM1
+file but does not do linear interpolation between times.  For
+maximum accuracy, I have always set CM1 to do history dumps at every
+timestep and set DT equal to what it is in namelist.input.  This requires
+a LOT of storage space.
+
+Also, this requires that TKE be one of the CM1 output fields.
+
+NOTE THAT THE VORTICITY DYNAMICS are questionable, for the horizontal
+vorticity.  But I included it anyway.  It seems to work pretty well for
+vertical vorticity, though.  USE AT YOUR OWN RISK, AND ANY IDEAS FOR
+IMPROVEMENT ARE WELCOMED.  Vorticity dynamics code based on Adlerman's
+code.
+
+Output:
+  dimensions:
+    ntimes : number of times
+    nparcels : number of parcels
+  * all variables have dimensions (ntimes,nparcels) and are real
+  tp (except for tp, which has only dimension ntimes) : model time (in s)
+  xp, yp, zp : x-, y-, and z-coordinates for parcel (m)
+  up, vp, wp : parcel winds (m/s)
+  qv : water vapor mixing ratio (kg/kg)
+  qc : cloud water mixing ratio
+  qr : rain water mixing ratio
+  qi : cloud ice mixing ratio
+  qs : snow mixing ratio
+  qg : graupel mixing ratio
+  qhl (if ptype=27) : hail mixing ratio
+  ncc : cloud water number concentration (m^{-3}).  Note that in the
+    Morrison scheme, this is set to a constant, so I just set it to zero.
+    Will eliminate or modify in future versions.
+  ncr : rain drop number concentration
+  nci : cloud ice particle number concentration
+  ncs : snowflake number concentration
+  ncg : graupel number concentration
+  th : potential temperature (in K)
+  thrpert : perturbation density potential temperature
+  rhod : dry air density (in g/m^3)
+  pi : nondimensionalized pressure
+  tke : turbulent kinetic energy
+      IF(OUTPUT_DYN.EQ.1)
+    buoy : buoyancy (m/s^2)
+    pgfx, pgfy, pgfz : total PGF (m/s^2)
+    pgfx_b, pgfy_b, pgfz_b : buoyancy PPGF
+    pgfx_dl, pgfy_dl, pgfz_dl : linear dynamic PPGF
+    pgfx_dn, pgfy_dn, pgfz_dn : nonlinear dynamic PPGF
+      IF(OUTPUT_VOR.EQ.1)
+    xvort, yvort, zvort : x-, y-, and z-vorticity (s^{-1})
+    svort : streamwise vorticity
+    cvort : crosswise vorticity
+    psi : atan(v/u)
+    zvort_stretch : stretching of z-vorticity
+    zvort_tilt : tilting into z-vorticity
+    svort_stretch : stretching of streamwise vorticity
+    svort_tilt : tilting into streamwise vorticity
+    svort_xchg : exchange between streamwise and crosswise vorticity
+    svort_bcln : baroclinic generation of streamwise vorticity
+    cvort_stretch : stretching of crosswise vorticity
+    cvort_tilt : tilting into crosswise vorticity
+    cvort_xchg : exchange between streamwise and crosswise vorticity
+    cvort_bcln : baroclinic generation of crosswise vorticity
+
+2.3 CIRCUIT
+
+Given the specifications for a circuit, a begin time, and an end time,
+circuit sets up a circuit of parcels and calculates backwards
+trajectories from the end time to the beginning time using a 4th-order
+Runge-Kutta scheme.  Circulation is computed around the circuit at every
+time step.  Based on code written by Paul Markowski.  Also computes the
+integral B*dz around the circuit.
+
+For the most part, this code is pretty much the same as traj.
+
+Three input files may be needed, two of which are required.  One is
+CIRCUIT.INPUT, which includes the specifications for the program.  See
+sample in input directory.  CM1LIST is just like as in traj.  And, just
+like in traj, DT must be set to the time difference between files in
+the list.  DYNLIST is required if OUTPUT_DYN=1.
+
+Outputs are almost the same as traj, except:
+  circ : circulation (m^2/s)
+  vdotl1 : dot product of wind with distance between parcels
+  vdotl2 : vdot1 normalized by distance
+  intBdz : integral of B*dz around the circuit
+
+2.4 MASS FLUX
+
+Computes updraft, downdraft, and total mass flux at given grid levels.
+Options are to compute for the whole domain, or for a window following
+the maximum updraft.
+
+3.0 INSTALLATION
+
+3.1  INSTALL NETCDF
+3.2  INSTALL FFTW
+
+FFTW is the Fastest Fourier Transform in the West, available from
+fftw.org.  It must be installed for dyn.  It's pretty easy to install,
+just follow the directions they give.
+
+3.3  INSTALL CM1_PP_V1.1
+
+First, edit the Makefile to point to the appropriate libraries and
+include files for netCDF and FFTW.  Then, simply type 'make' at a
+prompt.  To clean up the directory, eliminating object and other files
+(everything but the f90 files), 'make clean'.
+
+4.0 FULL LIST OF FILES INCLUDED IN THIS PACKAGE
+
+input/ -- sample input files
+  dyn.input : sample input file for dyn, with documentation
+  circuit.input : sample input file for circuit, with documentation
+  mass_flux.input : sample input file for mass_flux, with documentation
+  traject.input : sample input file for traj, with documentation
+scripts/ -- perl scripts to make life easier
+  batch_dyn.pl : script to run dyn a whole bunch of times on a lot of
+    different CM1 files
+  index_times.pl : versions of CM1 before r18 have a bug, where if you
+    run from a restart with a different time step, the model times are
+    completely wrong.  this script creates a txt file with a translation
+    that can be helpful when writing times in traject.input
+  parcel_list_maker.pl : given limits in x, y, and z, creates an input
+    file for traj that lists parcels by 
+src/ -- source code
+  README -- this file.  duh.
+  circuit.f90 -- source code for circuit
+  dyn.f90 -- source code for dyn
+  globals.f90 -- used by all programs.  list of constants and other
+    variables used in subroutines.
+  nc_inout.f90 -- netCDF input/output procedures used in other code
+  traj.f90 -- source code for traj
+  traj_utils.f90 -- procedures used by traj and circuit

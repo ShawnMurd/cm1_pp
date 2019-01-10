@@ -1,0 +1,30 @@
+!-------------------------------------------------------!
+!               TRAJECT.INPUT                           !
+!                                                       !
+!  Input for traj.                                      !
+!-------------------------------------------------------!
+! v1.0, Ryan Hastings, 16 Dec 2016                      !
+!-------------------------------------------------------!
+&filenames
+  cm1list='cm1list.input', ! list of CM1 files
+  dynlist='dynlist.input', ! list of dyn files (if output_dyn=1)
+  plist='test_parcels.input', ! list of positions of parcels.  first line of this file is the number of parcels
+  outfile='test.nc', ! output filename
+/
+
+&parameters
+  begintime=5469, ! time to regress parcels to
+  parcelt=7869, ! time of initialization of parcels
+  endtime=7872, ! time to advance parcels to
+  dt=3.0, ! time step MUST BE EQUAL TO TIME DIFFERENCE BETWEEN FILES IN CM1LIST
+  integration_method=1, ! 0=forward euler integration, 1=4th-order Runge-Kutta
+  ptype=5, ! microphysics scheme.  same as ptype for CM1 run.  note that at this point,
+           ! it's set up for morrison microphysics or ZVD (ptype=27) scheme with hail
+/
+
+&outputs
+  output_dyn=0, ! 0=do not output dyn variables, 1=output dyn variables
+  output_vor=1, ! 0=do not output vorticity dynamics, 1=output vorticity dynamics
+  output_z_only=0, ! 0=output dyn variables in all directions, 1=output dyn variables for z only
+  noncq=0, ! 0=output number concentrations, 1=do not output number concentrations
+/

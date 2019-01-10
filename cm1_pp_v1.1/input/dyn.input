@@ -1,0 +1,19 @@
+!----------------------------------------------------!
+!                   DYN.INPUT                        !
+!                                                    !
+!  Input for dyn.                                    !
+!----------------------------------------------------!
+! v1.0, Ryan Hastings, 16 Dec 2016                   !
+!----------------------------------------------------!
+&inputs
+  infile = 'cm1out_000111.nc', ! CM1 filename
+  outfile = 'dyn_000111.nc', ! dyn output filename
+  dz = 500, ! set this to horizontal grid spacing.  yes, i know it says "dz"
+            ! but set it to horizontal grid spacing.
+/
+
+&outputs
+  output_dl = 1, ! output linear dynamic pressure field
+  output_dn = 1, ! output nonlinear dynamic pressure field
+  output_b  = 1, ! output buoyancy pressure field
+/

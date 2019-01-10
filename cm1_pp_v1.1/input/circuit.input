@@ -1,0 +1,31 @@
+!----------------------------------------------------------------!
+!                     CIRCUIT.INPUT                              !
+!                                                                !
+!  Input for circuit.                                            !
+!----------------------------------------------------------------!
+! v1.0, Ryan Hastings, 16 Dec 2016                               !
+!----------------------------------------------------------------!
+&filenames
+  cm1list='cm1list.input', ! file containing list of CM1 files
+  dynlist='dynlist.input', ! file containing list of dyn files
+  outfile='140min_circuit_r1km.nc', ! output filename
+/
+
+&parameters
+  begintime = 3072, ! time to regress parcels to
+  endtime = 5475, ! time of circuit
+  dt = 3.0, ! time step...MUST EQUAL THE TIME STEP BETWEEN FILES IN CM1LIST
+  xc = -250.0, ! x-coordinate of circuit center
+  yc = -8250.0, ! y-coordinate of circuit center
+  zc = 25.0, ! z-coordinate of circuit center
+  radius =1000, ! radius of circuit
+  original_distance = 1, ! starting distance of parcels in circuit
+  mindist = 1000, ! minimum distance allowed between parcels
+  maxparcels = 100000, ! maximum number of parcels
+/
+
+&outputs
+  output_dyn = 0, ! 0=do not output dynamics variables, 1=output dynamics variables (from dyn)
+  output_vor = 0, ! 0=no vorticity dynamics, 1=vorticity dynamics
+  output_z_only=0, ! 0=output dyn/vort variables for x,y,z, 1=output dyn/vort variables for z only
+/

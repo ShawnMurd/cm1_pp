@@ -1,0 +1,25 @@
+!------------------------------------------------!
+!        MASS_FLUX.INPUT                         !
+!------------------------------------------------!
+&configuration
+  outfile = 'out.nc', ! name of output file
+  t1 = 1, ! time index for first file in series (note
+          ! not the actual time in s..what's in the filename)
+  t2 = 181, ! time index for last file in series
+  tstep = 1, ! rate at which to step through time indices
+  gpx = 0.0, ! number of grid points in the x-direction for window
+             ! if wholedomain=0
+  gpy = 0.0, ! number of grid points in the y-direction for window
+             ! if wholedomain=0
+  dx = 500,  ! x-grid spacing
+  dy = 500,  ! y-grid spacing
+  kud = 32,  ! index for height at which to take updraft mass flux
+  kdd = 15,  ! index for height at which to take downdraft mass flux
+  toffset = 0, ! for cm1r17 and earlier, restart files have the wrong
+               ! time in them if you switch time steps, so an offset
+               ! is needed to get the right times
+  wholedomain = 1, ! if wholedomain=0, mass flux is computed in a
+                   ! rectangular window that is centered on the maximum
+                   ! updraft.  if wholedomain=1, mass flux is computed
+                   ! for the whole domain
+/
