@@ -260,6 +260,8 @@ module nc_inout
         yf=yf*1000
         zh=zh*1000
         zf=zf*1000
+        
+      endif
 
       ! calculate mzh and mzf
       write(*,*) '....mzh....'
@@ -1003,6 +1005,7 @@ endif
 
     character(len=100),intent(in),dimension(:) :: infiles
     integer,intent(in) :: ti
+    real,intent(in) :: dt
 
     real,intent(inout),dimension(1:ni+1,1:nj,0:nk) :: u1, u2, pgfx1, pgfx2
     real,intent(inout),dimension(1:ni,1:nj+1,0:nk) :: v1, v2, pgfy1, pgfy2
@@ -1084,7 +1087,7 @@ endif
     enddo
 
     if(ptype.eq.27)then
-      thr1 = th1*(1+reps*qv1)/(1+qv1+qc1+qr1+qi1+q1s+qg1+qhl1)
+      thr1 = th1*(1+reps*qv1)/(1+qv1+qc1+qr1+qi1+qs1+qg1+qhl1)
     else
       thr1 = th1*(1+reps*qv1)/(1+qv1+qc1+qr1+qi1+qs1+qg1)
     endif
@@ -1282,14 +1285,14 @@ endif
     character(len=100),intent(in),dimension(:) :: dynfiles
     integer ti
     real,intent(in),dimension(1:ni,1:nj,0:nk) :: thr1,thr2,buoy1,buoy2
-    real,intent(in) dt
+    real,intent(in) :: dt
 
     ! Returned variables
     real,intent(out),dimension(1:ni+1,1:nj,0:nk) :: pgfx_b1, pgfx_b2
     real,intent(out),dimension(1:ni+1,1:nj,0:nk) :: pgfx_dl1, pgfx_dl2
     real,intent(out),dimension(1:ni+1,1:nj,0:nk) :: pgfx_dn1, pgfx_dn2
     real,intent(out),dimension(1:ni,1:nj+1,0:nk) :: pgfy_b1, pgfy_b2
-    real,intent(out),dimension(1:ni,1:nj+1,0:nk) :: pgfy_dl1, pgf_dl2
+    real,intent(out),dimension(1:ni,1:nj+1,0:nk) :: pgfy_dl1, pgfy_dl2
     real,intent(out),dimension(1:ni,1:nj+1,0:nk) :: pgfy_dn1, pgfy_dn2
     real,intent(out),dimension(1:ni,1:nj,1:nk+1) :: pgfz_b1, pgfz_b2
     real,intent(out),dimension(1:ni,1:nj,1:nk+1) :: pgfz_dl1, pgfz_dl2
