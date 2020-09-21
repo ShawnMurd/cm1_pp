@@ -66,16 +66,16 @@ contains
 
   subroutine interpintime_scalars( buoy1, buoy2, buoy, tke1, tke2, tke, thr1, thr2, thr, &
         qv1, qv2, qv, qc1, qc2, qc, qr1, qr2, qr, qi1, qi2, qi, qs1, qs2, qs, &
-        qg1, qg2, qg, qi1, qi2, qi, qs1, qs2, qs, qg1, qg2, qg, qhl1, qhl2, qhl, &
+        qg1, qg2, qg, qhl1, qhl2, qhl, &
         ncc1, ncc2, ncc, ncr1, ncr2, ncr, nci1, nci2, nci, ncs1, ncs2, ncs, &
-        ngi1, ngi1, ngi, rhod1, rhod2, rhod, th1, th2, th, ppi1, ppi1, ppi, t1, t2, ptime )
+        ncg1, ncg2, ncg, rhod1, rhod2, rhod, th1, th2, th, ppi1, ppi2, ppi, t1, t2, ptime )
 
     implicit none
     real,intent(in),dimension(1:ni,1:nj,0:nk) :: buoy1, buoy2, tke1, tke2, thr1, thr2
     real,intent(in),dimension(1:ni,1:nj,0:nk) :: qv1, qv2, qc1, qc2, qi1, qi2, qs1, qs2
     real,intent(in),dimension(1:ni,1:nj,0:nk) :: qg1, qg2, qr1, qr2, qhl1, qhl2
     real,intent(in),dimension(1:ni,1:nj,0:nk) :: ncc1, ncc2, ncr1, ncr2, nci1, nci2
-    real,intent(in),dimension(1:ni,1:nj,0:nk) :: ncs1, ncs1, ncg1, ncg2, rhod1, rhod2
+    real,intent(in),dimension(1:ni,1:nj,0:nk) :: ncs1, ncs2, ncg1, ncg2, rhod1, rhod2
     real,intent(in),dimension(1:ni,1:nj,0:nk) :: th1, th2, ppi1, ppi2
     real,intent(in) :: t1, t2, ptime
 
@@ -95,7 +95,6 @@ contains
     call interp1_scalar(qg1,qg2,t1,t2,ptime,qg)
     call interp1_scalar(qhl1,qhl2,t1,t2,ptime,qhl)
 
-    call interp1_scalar(ncv1,ncv2,t1,t2,ptime,ncv)
     call interp1_scalar(ncc1,ncc2,t1,t2,ptime,ncc)
     call interp1_scalar(ncr1,ncr2,t1,t2,ptime,ncr)
     call interp1_scalar(nci1,nci2,t1,t2,ptime,nci)
@@ -170,9 +169,9 @@ contains
     real,dimension(1:ni,1:nj,0:nk) :: qv, qc, qr, qi, qs, qg, qhl, rhod
     real,dimension(1:ni,1:nj,0:nk) :: ncc, ncr, nci, ncs, ncg
 
-    real,intent(in),dimension(0:nk) :: zzh
+    real,dimension(1:nk) :: thr0
 
-    real,intent(inout) :: xpc, ypc, zpc
+    real,intent(in),dimension(0:nk) :: zzh
 
     ! Returned variables
     real,intent(out) :: up, vp, wp, buoyp, pgfxp, pgfyp, pgfzp, tkep, thrp
@@ -421,7 +420,7 @@ contains
     real,intent(out),dimension(1:ni,1:nj,0:nk) :: s
 
     s=s1+(t2-ptime)*(s2-s1)/(t2-t1)
-  endif
+  end subroutine
 
   subroutine interp1_u(s1,s2,t1,t2,ptime,s)
     implicit none
@@ -430,7 +429,7 @@ contains
     real,intent(out),dimension(1:ni+1,1:nj,0:nk) :: s
     
     s=s1+(t2-ptime)*(s2-s1)/(t2-t1)
-  endif
+  end subroutine
 
   subroutine interp1_v(s1,s2,t1,t2,ptime,s)
     implicit none
@@ -439,7 +438,7 @@ contains
     real,intent(out),dimension(1:ni,1:nj+1,0:nk) :: s
     
     s=s1+(t2-ptime)*(s2-s1)/(t2-t1)
-  endif
+  end subroutine
 
   subroutine interp1_w(s1,s2,t1,t2,ptime,s)
     implicit none
@@ -448,7 +447,7 @@ contains
     real,intent(out),dimension(1:ni,1:nj,1:nk+1) :: s
     
     s=s1+(t2-ptime)*(s2-s1)/(t2-t1)
-  endif
+  end subroutine
 
     
   !################################################################!
@@ -491,7 +490,7 @@ contains
       up = u(iif  ,jh  ,kh  )*dx1*dz1 + &
            u(iif  ,jh  ,kh+1)*dx1*dz2 + &
            u(iif+1,jh  ,kh  )*dx2*dz1 + &
-           u(iif+1,jh  ,kh+1)*dx2*dz2 + &
+           u(iif+1,jh  ,kh+1)*dx2*dz2
     else
       dx =   xf(iif+1)-xf(iif)
       dx1 = (xf(iif+1)-xpc)    /dx
@@ -556,7 +555,7 @@ contains
       vp = v(ih  ,jf  ,kh  )*dx1*dz1 + &
            v(ih  ,jf  ,kh+1)*dx1*dz2 + &
            v(ih+1,jf  ,kh  )*dx2*dz1 + &
-           v(ih+1,jf  ,kh+1)*dx2*dz2 + &
+           v(ih+1,jf  ,kh+1)*dx2*dz2
 
     else
       dx =   xh(ih+1)-xh(ih)
@@ -613,7 +612,6 @@ contains
       dx =   xh(ih+1)-xh(ih)
       dx1 = (xh(ih+1)-xpc)    /dx
       dx2 = (xpc-      xh(ih))/dx
-
       dz_ =   zf(kf+1)-zf(kf)
       dz1 = (zf(kf+1)-zpc)/dz_
       dz2 = (zpc-zf(kf))/dz_
@@ -621,7 +619,7 @@ contains
       wp = w(ih  ,jh  ,kf  )*dx1*dz1 + &
            w(ih  ,jh  ,kf+1)*dx1*dz2 + &
            w(ih+1,jh  ,kf  )*dx2*dz1 + &
-           w(ih+1,jh  ,kf+1)*dx2*dz2 + &
+           w(ih+1,jh  ,kf+1)*dx2*dz2
 
     else
 
@@ -690,7 +688,7 @@ contains
       scalarp = scalar(ih  ,jh  ,kh  )*dx1*dz1 + &
                 scalar(ih  ,jh  ,kh+1)*dx1*dz2 + &
                 scalar(ih+1,jh  ,kh  )*dx2*dz1 + &
-                scalar(ih+1,jh  ,kh+1)*dx2*dz2 + &
+                scalar(ih+1,jh  ,kh+1)*dx2*dz2
 
     else
 
