@@ -625,14 +625,14 @@ program traj
       qc1, qc2, qr1, qr2, qi1, qi2, qs1, qs2, qg1, qg2, qhl1, qhl2, th1, th2, &
       thr0, pi0, &
       pgfx1, pgfx2, pgfy1, pgfy2, pgfz1, pgfz2, thr1, thr2, buoy1, buoy2,&
-      tke1, tke2, ncc1, ncc2, ncr1, vcr2, nci1, nci2, ncs1, ncs2, ncg1, ng2, &
+      tke1, tke2, ncc1, ncc2, ncr1, ncr2, nci1, nci2, ncs1, ncs2, ncg1, ncg2, &
       rhod1, rhod2, ppi1, ppi2,dt )
 
     if (output_dyn.eq.1) then
       call traject_nc_read_dyn( dynfiles, ti, pgfx_b1, pgfx_b2, &
         pgfy_b1, pgfy_b2, pgfz_b1, pgfz_b2, pgfx_dl1, pgfx_dl2, &
         pgfy_dl1, pgfy_dl2, pgfz_dl1, pgfz_dl2, &
-        pgfx_dn1, pgfx_dn2, pgfy_dn1, pgfy_dn2, pgfz_dn1, pgfz_dn1, thr1, 
+        pgfx_dn1, pgfx_dn2, pgfy_dn1, pgfy_dn2, pgfz_dn1, pgfz_dn1, thr1, &
         thr2, buoy1, buoy2,dt )
     endif
 
@@ -652,10 +652,11 @@ program traj
       call interpintime_winds( u1, u2, u, v1, v2, v, w1, w2, w, times(ti), times(ti+1), tt )
       call interpintime_scalars( buoy1, buoy2, buoy, tke1, tke2, tke, thr1, thr2, thr, &
         qv1, qv2, qv, qc1, qc2, qc, qr1, qr2, qr, qi1, qi2, qi, qs1, qs2, qs, &
-        qg1, qg2, qg, qi1, qi2, qi, qs1, qs2, qs, qg1, qg2, qg, qhl1, qhl2, qhl, &
+        qg1, qg2, qg, qi1, qhl1, qhl2, qhl, &
         ncc1, ncc2, ncc, ncr1, ncr2, ncr, nci1, nci2, nci, ncs1, ncs2, ncs, &
-        ngi1, ngi1, ngi, rhod1, rhod2, rhod, th1, th2, th, ppi1, ppi1, ppi, times(ti), times(ti+1), tt )
-      call interpintime_winds( pgfx1, pgfx2, pgfx, pgfy1, pgfy2, pgfz1, pgfz2, pgfz, times(ti), times(ti+1), tt )
+        ncg1, ncg2, ncg, rhod1, rhod2, rhod, th1, th2, th, ppi1, ppi1, ppi, times(ti), times(ti+1), tt )
+      call interpintime_winds( pgfx1, pgfx2, pgfx, pgfy1, pgfy2, pgfy, pgfz1, pgfz2, pgfz, &
+        times(ti), times(ti+1), tt )
 
       if(output_dyn.eq.1)then
         call interpintime_winds( pgfx_b1, pgfx_b2, pgfx_b, pgfy_b1, pgfy_b2, pgfy_b, &
@@ -714,7 +715,7 @@ program traj
 !      write(*,*) 'opening ',infiles(ti),'...time ',times(ti)
 
         IF(INTEGRATION_METHOD.EQ.0)THEN
-      if(tp(tstep).gt.infile(ti+1))then
+      if(tp(tstep).gt.times(ti+1))then
         ti=ti+1
         call traject_nc_read_cm1( infiles, ti, u1, u2, v1, v2, w1, w2, qv1, qv2, &
     qc1, qc2, qr1, qr2, qi1, qi2, qs1, qs2, qg1, qg2, qhl1, qhl2, &
@@ -726,7 +727,7 @@ program traj
       call traject_nc_read_dyn( dynfiles, ti, pgfx_b1, pgfx_b2, &
         pgfy_b1, pgfy_b2, pgfz_b1, pgfz_b2, pgfx_dl1, pgfx_dl2, &
         pgfy_dl1, pgfy_dl2, pgfz_dl1, pgfz_dl2, &
-        pgfx_dn1, pgfx_dn2, pgfy_dn1, pgfy_dn2, pgfz_dn1, pgfz_dn1, thr1,
+        pgfx_dn1, pgfx_dn2, pgfy_dn1, pgfy_dn2, pgfz_dn1, pgfz_dn1, thr1, &
         thr2, buoy1, buoy2, dt )
         endif
       endif
@@ -738,7 +739,7 @@ program traj
 !           thr0, pi0, pgfx, pgfy, pgfz, thr, buoy, tke, ncc, ncr, nci, ncs, ncg, &
 !           rhod, ppi )
 
-      if(tp(tstep).gt.infiles(ti+1))then
+      if(tp(tstep).gt.times(ti+1))then
         ti=ti+1
         call traject_nc_read_cm1( infiles, ti, u1, u2, v1, v2, w1, w2, qv1, qv2, &
     qc1, qc2, qr1, qr2, qi1, qi2, qs1, qs2, qg1, qg2, qhl1, qhl2, &
@@ -750,7 +751,7 @@ program traj
       call traject_nc_read_dyn( dynfiles, ti, pgfx_b1, pgfx_b2, &
         pgfy_b1, pgfy_b2, pgfz_b1, pgfz_b2, pgfx_dl1, pgfx_dl2, &
         pgfy_dl1, pgfy_dl2, pgfz_dl1, pgfz_dl2, &
-        pgfx_dn1, pgfx_dn2, pgfy_dn1, pgfy_dn2, pgfz_dn1, pgfz_dn1, thr1,
+        pgfx_dn1, pgfx_dn2, pgfy_dn1, pgfy_dn2, pgfz_dn1, pgfz_dn1, thr1, &
         thr2, buoy1, buoy2, dt )
         endif
       endif
@@ -787,10 +788,11 @@ program traj
       call interpintime_winds( u1, u2, u, v1, v2, v, w1, w2, w, times(nfiles-1), times(nfiles), tt )
       call interpintime_scalars( buoy1, buoy2, buoy, tke1, tke2, tke, thr1, thr2, thr, &
         qv1, qv2, qv, qc1, qc2, qc, qr1, qr2, qr, qi1, qi2, qi, qs1, qs2, qs, &
-        qg1, qg2, qg, qi1, qi2, qi, qs1, qs2, qs, qg1, qg2, qg, qhl1, qhl2, qhl, &
+        qg1, qg2, qg, qhl1, qhl2, qhl, &
         ncc1, ncc2, ncc, ncr1, ncr2, ncr, nci1, nci2, nci, ncs1, ncs2, ncs, &
-        ngi1, ngi1, ngi, rhod1, rhod2, rhod, th1, th2, th, ppi1, ppi1, ppi, times(nfiles-1), times(nfiles), tt )
-      call interpintime_winds( pgfx1, pgfx2, pgfx, pgfy1, pgfy2, pgfz1, pgfz2, pgfz, times(nfiles-1), times(nfiles), tt )
+        ncg1, ncg2, ncg, rhod1, rhod2, rhod, th1, th2, th, ppi1, ppi1, ppi, times(nfiles-1), times(nfiles), tt )
+      call interpintime_winds( pgfx1, pgfx2, pgfx, pgfy1, pgfy2, pgfy, pgfz1, pgfz2, pgfz, &
+        times(nfiles-1), times(nfiles), tt )
 
       if(output_dyn.eq.1)then
         call interpintime_winds( pgfx_b1, pgfx_b2, pgfx_b, pgfy_b1, pgfy_b2, pgfy_b, &
@@ -869,14 +871,14 @@ program traj
       qc1, qc2, qr1, qr2, qi1, qi2, qs1, qs2, qg1, qg2, qhl1, qhl2, th1, th2, &
       thr0, pi0, &
       pgfx1, pgfx2, pgfy1, pgfy2, pgfz1, pgfz2, thr1, thr2, buoy1, buoy2,&
-      tke1, tke2, ncc1, ncc2, ncr1, vcr2, nci1, nci2, ncs1, ncs2, ncg1, ng2, &
+      tke1, tke2, ncc1, ncc2, ncr1, ncr2, nci1, nci2, ncs1, ncs2, ncg1, ncg2, &
       rhod1, rhod2, ppi1, ppi2,dt )
 
     if (output_dyn.eq.1) then
       call traject_nc_read_dyn( dynfiles, ti, pgfx_b1, pgfx_b2, &
         pgfy_b1, pgfy_b2, pgfz_b1, pgfz_b2, pgfx_dl1, pgfx_dl2, &
         pgfy_dl1, pgfy_dl2, pgfz_dl1, pgfz_dl2, &
-        pgfx_dn1, pgfx_dn2, pgfy_dn1, pgfy_dn2, pgfz_dn1, pgfz_dn1, thr1,
+        pgfx_dn1, pgfx_dn2, pgfy_dn1, pgfy_dn2, pgfz_dn1, pgfz_dn1, thr1, &
         thr2, buoy1, buoy2,dt )
     endif
 
@@ -898,10 +900,11 @@ program traj
       call interpintime_winds( u1, u2, u, v1, v2, v, w1, w2, w, times(ti-1), times(ti), tt )
       call interpintime_scalars( buoy1, buoy2, buoy, tke1, tke2, tke, thr1, thr2, thr, &
         qv1, qv2, qv, qc1, qc2, qc, qr1, qr2, qr, qi1, qi2, qi, qs1, qs2, qs, &
-        qg1, qg2, qg, qi1, qi2, qi, qs1, qs2, qs, qg1, qg2, qg, qhl1, qhl2, qhl, &
+        qg1, qg2, qg, qhl1, qhl2, qhl, &
         ncc1, ncc2, ncc, ncr1, ncr2, ncr, nci1, nci2, nci, ncs1, ncs2, ncs, &
-        ngi1, ngi1, ngi, rhod1, rhod2, rhod, th1, th2, th, ppi1, ppi1, ppi, times(ti-1), times(ti), tt )
-      call interpintime_winds( pgfx1, pgfx2, pgfx, pgfy1, pgfy2, pgfz1, pgfz2, pgfz, times(ti-1), times(ti), tt )
+        ncg1, ncg2, ncg, rhod1, rhod2, rhod, th1, th2, th, ppi1, ppi1, ppi, times(ti-1), times(ti), tt )
+      call interpintime_winds( pgfx1, pgfx2, pgfx, pgfy1, pgfy2, pgfy, pgfz1, pgfz2, pgfz, &
+        times(ti-1), times(ti), tt )
 
       if(output_dyn.eq.1)then
         call interpintime_winds( pgfx_b1, pgfx_b2, pgfx_b, pgfy_b1, pgfy_b2, pgfy_b, &
@@ -964,7 +967,7 @@ program traj
 !           thr0, pi0, pgfx, pgfy, pgfz, thr, buoy, tke, ncc, ncr, nci, ncs, ncg,&
 !           rhod, ppi )
 
-      if(tp(tstep).lt.infile(ti-1))then
+      if(tp(tstep).lt.times(ti-1))then
         ti=ti-1
         call traject_nc_read_cm1( infiles, ti, u1, u2, v1, v2, w1, w2, qv1, qv2, &
     qc1, qc2, qr1, qr2, qi1, qi2, qs1, qs2, qg1, qg2, qhl1, qhl2, &
@@ -976,7 +979,7 @@ program traj
       call traject_nc_read_dyn( dynfiles, ti, pgfx_b1, pgfx_b2, &
         pgfy_b1, pgfy_b2, pgfz_b1, pgfz_b2, pgfx_dl1, pgfx_dl2, &
         pgfy_dl1, pgfy_dl2, pgfz_dl1, pgfz_dl2, &
-        pgfx_dn1, pgfx_dn2, pgfy_dn1, pgfy_dn2, pgfz_dn1, pgfz_dn1, thr1,
+        pgfx_dn1, pgfx_dn2, pgfy_dn1, pgfy_dn2, pgfz_dn1, pgfz_dn1, thr1, &
         thr2, buoy1, buoy2, dt )
         endif
       endif
@@ -990,7 +993,7 @@ program traj
 !           rhod, ppi )
 ! 
 
-      if(tp(tstep).gt.infiles(ti-1))then
+      if(tp(tstep).lt.times(ti-1))then
         ti=ti-1
         call traject_nc_read_cm1( infiles, ti, u1, u2, v1, v2, w1, w2, qv1, qv2, &
     qc1, qc2, qr1, qr2, qi1, qi2, qs1, qs2, qg1, qg2, qhl1, qhl2, &
@@ -1002,12 +1005,13 @@ program traj
       call traject_nc_read_dyn( dynfiles, ti, pgfx_b1, pgfx_b2, &
         pgfy_b1, pgfy_b2, pgfz_b1, pgfz_b2, pgfx_dl1, pgfx_dl2, &
         pgfy_dl1, pgfy_dl2, pgfz_dl1, pgfz_dl2, &
-        pgfx_dn1, pgfx_dn2, pgfy_dn1, pgfy_dn2, pgfz_dn1, pgfz_dn1, thr1,
+        pgfx_dn1, pgfx_dn2, pgfy_dn1, pgfy_dn2, pgfz_dn1, pgfz_dn1, thr1, &
         thr2, buoy1, buoy2, dt )
         endif
       endif
 
-      call interpintime_winds( u1, u2, utem, v1, v2, vtem, w1, w2, wtem, times(ti-1, times(ti), tp(tstep-1) )
+      call interpintime_winds( u1, u2, utem, v1, v2, vtem, w1, w2, wtem, times(ti-1), & 
+        times(ti), tp(tstep-1) )
 
       do np=1,nparcels
         call rk4( xpc(tstep:tstep+1,np), ypc(tstep:tstep+1,np), zpc(tstep:tstep+1,np), &
@@ -1026,8 +1030,11 @@ program traj
 
 
       if (output_dyn.eq.1) then
-        call traject_nc_read_dyn( dynfiles(ti), pgfx_b, pgfy_b, pgfz_b, pgfx_dl, pgfy_dl, pgfz_dl, &
-          pgfx_dn, pgfy_dn, pgfz_dn, thr, buoy )
+        call traject_nc_read_dyn( dynfiles, ti, pgfx_b1, pgfx_b2, &
+          pgfy_b1, pgfy_b2, pgfz_b1, pgfz_b2, pgfx_dl1, pgfx_dl2, &
+          pgfy_dl1, pgfy_dl2, pgfz_dl1, pgfz_dl2, &
+          pgfx_dn1, pgfx_dn2, pgfy_dn1, pgfy_dn2, pgfz_dn1, pgfz_dn1, thr1, &
+          thr2, buoy1, buoy2, dt )
       endif
 
     enddo ! do tstep=start_time,2,-1
@@ -1042,14 +1049,15 @@ program traj
       call interpintime_winds( u1, u2, u, v1, v2, v, w1, w2, w, times(1), times(2), tt )
       call interpintime_scalars( buoy1, buoy2, buoy, tke1, tke2, tke, thr1, thr2, thr, &
         qv1, qv2, qv, qc1, qc2, qc, qr1, qr2, qr, qi1, qi2, qi, qs1, qs2, qs, &
-        qg1, qg2, qg, qi1, qi2, qi, qs1, qs2, qs, qg1, qg2, qg, qhl1, qhl2, qhl, &
+        qg1, qg2, qg, qhl1, qhl2, qhl, &
         ncc1, ncc2, ncc, ncr1, ncr2, ncr, nci1, nci2, nci, ncs1, ncs2, ncs, &
-        ngi1, ngi1, ngi, rhod1, rhod2, rhod, th1, th2, th, ppi1, ppi1, ppi, times(1), times(2), tt )
-      call interpintime_winds( pgfx1, pgfx2, pgfx, pgfy1, pgfy2, pgfz1, pgfz2, pgfz, times(1), times(2), tt )
+        ncg1, ncg2, ncg, rhod1, rhod2, rhod, th1, th2, th, ppi1, ppi1, ppi, times(1), times(2), tt )
+      call interpintime_winds( pgfx1, pgfx2, pgfx, pgfy1, pgfy2, pgfy, pgfz1, pgfz2, pgfz, &
+        times(1), times(2), tt )
 
       if(output_dyn.eq.1)then
         call interpintime_winds( pgfx_b1, pgfx_b2, pgfx_b, pgfy_b1, pgfy_b2, pgfy_b, &
-          pgfz_b1, pgfz_b2, pgfz_b, times(1), times(2) tt )
+          pgfz_b1, pgfz_b2, pgfz_b, times(1), times(2), tt )
         call interpintime_winds( pgfx_dl1, pgfx_dl2, pgfx_dl, pgfy_dl1, pgfy_dl2, pgfy_dl, &
           pgfz_dl1, pgfz_dl2, pgfz_dl, times(1), times(2), tt )
         call interpintime_winds( pgfx_dn1, pgfx_dn2, pgfx_dn, pgfy_dn1, pgfy_dn2, pgfy_dn, &
