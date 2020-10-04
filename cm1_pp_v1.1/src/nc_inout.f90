@@ -547,11 +547,11 @@ endif
       !-------------------------------------------------------------------------!
       ! get winds on mass grid
       write(*,*) 'zonal wind on mass grid'
-      call nc_getvar4( ncid, 'uinterp ', strt4, (/ni,nj,nk,1/), u )
+      call nc_getvar4( ncid, 'uinterp ', strt4, (/ni,nj,nk,1/), ui )
       write(*,*) 'meridional wind on mass grid'
-      call nc_getvar4( ncid, 'vinterp ', strt4, (/ni,nj,nk,1/), v )
+      call nc_getvar4( ncid, 'vinterp ', strt4, (/ni,nj,nk,1/), vi )
       write(*,*) 'vertical wind on mass grid'
-      call nc_getvar4( ncid, 'winterp ', strt4, (/ni,nj,nk,1/), w )
+      call nc_getvar4( ncid, 'winterp ', strt4, (/ni,nj,nk,1/), wi )
 
       !-------------------------------------------------------------------------!
       ! get winds on momentum grid
